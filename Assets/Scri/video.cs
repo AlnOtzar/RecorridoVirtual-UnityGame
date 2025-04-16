@@ -2,24 +2,71 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Video;
+using TMPro;
 
 public class Videos : MonoBehaviour
 {
-    public VideoPlayer video;
+    public VideoPlayer videoPlayer;
+    public float interactionDistance = 3f;
+    public Transform playerCamera;
+    public TextMeshProUGUI mensajeUI;
 
-    void Start()
+    private bool isPlaying = false;
+
+    void Update()
     {
-        video = GetComponent<VideoPlayer>();
-        video.Stop();
+        Ray ray = new Ray(playerCamera.position, playerCamera.forward);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, interactionDistance))
+        {
+            if (hit.transform.gameObject == gameObject)
+            {
+                Debug.Log("Estoy mirando al botón");
+
+                if (mensajeUI != null)
+                {
+                    mensajeUI.enabled = true;
+                }
+
+                // Reproducir/Pausar video
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    ToggleVideo();
+                }
+            }
+            else
+            {
+                OcultarMensaje();
+            }
+        }
+        else
+        {
+            OcultarMensaje();
+        }
     }
 
-    private void OnTriggerEnter(Collider other)
+    void ToggleVideo()
     {
-        video.Play();
+        if (videoPlayer == null) return;
+
+        if (isPlaying)
+        {
+            videoPlayer.Pause();
+        }
+        else
+        {
+            videoPlayer.Play();
+        }
+
+        isPlaying = !isPlaying;
     }
 
-    private void OnTriggerExit(Collider other)
+    void OcultarMensaje()
     {
-        video.Stop();
+        if (mensajeUI != null)
+        {
+            mensajeUI.enabled = false;
+        }
     }
 }
